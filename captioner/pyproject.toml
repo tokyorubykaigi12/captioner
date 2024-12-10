@@ -1,0 +1,9 @@
+[project]
+name = "captioner"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "azure-cognitiveservices-speech>=1.41.1",
+]

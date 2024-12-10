@@ -1,0 +1,8 @@
+# Ignore virtual environment directories
+.venv/
+
+# Ignore uvicorn log files
+*.log
+
+# Ignore Ruff cache
+.ruff_cache/
