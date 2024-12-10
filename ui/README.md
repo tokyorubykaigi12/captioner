@@ -18,3 +18,8 @@ or build and preview
 npm run build
 npx serve -s build
 ```
+
+## todo
+
+- [ ] connect mqtt broker
+- [ ] show captions in order
