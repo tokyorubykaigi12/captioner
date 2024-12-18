@@ -18,3 +18,9 @@ and execute. `:2` is id of your audio input. please replace it.
 ```sh
 ffmpeg -f avfoundation -i :2 -f s16le -ar 16000 -ac 1 - | envchain terfno-aws-trk12 ruby ./captioner.rb
 ```
+
+for benchmark:
+
+```sh
+ffmpeg -re -i source.wav -f s16le -ar 16000 -ac 1 - | envchain terfno-aws-trk12 ruby ./captioner.rb
+```
