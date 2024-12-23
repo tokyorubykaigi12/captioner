@@ -1,6 +1,24 @@
 # https://github.com/ruby-no-kai/signage-app/blob/main/caption/serve.rb
 require 'thread'
 require 'aws-sdk-transcribestreamingservice'
+require 'aws-sdk-translate'
+
+class TranslateEngine
+  def initialize
+    @client = Aws::Translate::Client.new(region: 'ap-northeast-1')
+  end
+
+  def translate(text:)
+    @client.translate_text(
+      text: text,
+      source_language_code: 'ja',
+      target_language_code: 'en',
+      settings: {
+        formality: 'FORMAL'
+      }
+    ).translated_text
+  end
+end
 
 class StdinInput
   def initialize
@@ -77,7 +95,7 @@ class TranscribeEngine
   end
 end
 
-CaptionData = Data.define(:result_id, :is_partial, :transcript)
+CaptionData = Data.define(:result_id, :is_partial, :transcript, :translated_transcript)
 
 class GenericOutput
   def initialize()
@@ -85,14 +103,18 @@ class GenericOutput
     @data = {}
   end
 
-  def feed(event)
+  def feed(event, translator = nil)
     @data_lock.synchronize do
       event.transcript.results.each do |result|
+        transcript = result.alternatives[0]&.transcript
+
         caption = CaptionData.new(
           result_id: result.result_id,
           is_partial: result.is_partial,
-          transcript: result.alternatives[0]&.transcript,
+          transcript: transcript,
+          translated_transcript: translator&.translate(text: transcript) # 富豪的に呼んでいるが、is_partial: false のときだけでもいいかも？
         )
+
         @data[result.result_id] = caption if caption.transcript
       end
     end
@@ -162,6 +184,7 @@ watchdog.start()
 
 input = StdinInput.new
 engine = TranscribeEngine.new
+translator = TranslateEngine.new
 output = StderrOutput.new
 
 input.on_data do |chunk|
@@ -171,7 +194,7 @@ end
 
 engine.on_transcript_event do |e|
   watchdog&.alive!
-  output.feed(e)
+  output.feed(e, translator)
 end
 
 begin
