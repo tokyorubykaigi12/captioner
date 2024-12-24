@@ -15,9 +15,15 @@
 ## todo
 
 - [ ] 各種 captioner を試せる状態にする
+  - [x] aws
+  - [x] azure
 - [ ] mqtt にわたす message の設計をする
   - MQTT は順序の保証がないはずなので、順序情報をもたせる(sequence)
   - あとから字幕の一部更新できるようにする(round)
+- [ ] mqtt の topic を設計する
+  - トラックの区別がつくようにする
 - [ ] ui の実装をする
-  - [ ] mqtt broker との接続
+  - [x] mqtt broker との接続
+    - とりあえずできた。
+    - [ ] aws とのつなぎこみはまだ
   - [ ] caption message を順序に応じて表示/更新する
