@@ -1,12 +1,13 @@
-version: "3"
 services:
   mqtt:
       image: eclipse-mosquitto:2
       container_name: trk12-mqtt-1
       expose:
         - 1883
+        - 2883
       ports:
         - 1883:1883
+        - 2883:2883
       restart: unless-stopped
       volumes:
         - ./config:/mosquitto/config
