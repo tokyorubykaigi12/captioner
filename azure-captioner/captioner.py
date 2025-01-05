@@ -8,7 +8,7 @@ def recognize_from_microphone():
     # use trk12-v2 model.
     custom_model_id = "a53d9c7c-daf1-4ff8-8297-65ec394ce0cd"
     # You can get deviceUID list by running the inputdevicelist.m .
-    deviceUID = "BuiltInMicrophoneDevice"
+    deviceUID = "BlackHole2ch_UID"
 
     # This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
     speech_translation_config = speechsdk.translation.SpeechTranslationConfig(

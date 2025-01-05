@@ -45,7 +45,7 @@ source .venv/bin/activate
 ```
 
 ```sh
-envchain terfno-azure-speech-test uv run python ./signage.py
+envchain terfno-azure-speech-test uv run python ./captioner.py
 ```
 
 ## supporting
