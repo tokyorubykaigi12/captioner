@@ -55,3 +55,6 @@ use ruff to format.
 ```sh
 ruff format
 ```
+
+if you want to stop the venv, just `$ deactivate`
+
