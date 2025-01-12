@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Amplify } from "aws-amplify";
 import { events } from "aws-amplify/data";
 
@@ -14,6 +14,8 @@ interface Message {
 
 function App() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const transcriptDivScroller = useRef<HTMLDivElement>(null);
+  const translationDivScroller = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     Amplify.configure({
@@ -43,6 +45,13 @@ function App() {
                 return [...prevMessages, { ...data.event }];
               }
             });
+
+            transcriptDivScroller.current?.scrollIntoView({
+              behavior: "smooth",
+            });
+            translationDivScroller.current?.scrollIntoView({
+              behavior: "smooth",
+            });
           },
           error: (error) => {
             console.error("Subscription error:", error);
@@ -62,16 +71,34 @@ function App() {
 
   return (
     <>
-      <p className="messages">
+      <div className="messages">
         {messages.map((message) => (
-          <span key={message.result_id}>{message.transcript}</span>
+          <span
+            key={message.result_id}
+            className={message.is_partial ? "partial" : ""}
+          >
+            {message.transcript}
+          </span>
         ))}
-      </p>
+        <div
+          ref={transcriptDivScroller}
+          style={{ float: "left", clear: "both" }}
+        />
+      </div>
       <hr />
       <p className="messages">
         {messages.map((message) => (
-          <span key={message.result_id}>{message.translation}</span>
+          <span
+            key={message.result_id}
+            className={message.is_partial ? "partial" : ""}
+          >
+            {message.translation}
+          </span>
         ))}
+        <div
+          ref={translationDivScroller}
+          style={{ float: "left", clear: "both" }}
+        />
       </p>
     </>
   );
