@@ -1,7 +1,9 @@
 # https://github.com/ruby-no-kai/signage-app/blob/main/caption/serve.rb
+
 require 'thread'
 require 'aws-sdk-transcribestreamingservice'
 require 'aws-sdk-translate'
+require 'faraday'
 
 class TranslateEngine
   def initialize
@@ -146,6 +148,22 @@ class StderrOutput < GenericOutput
   end
 end
 
+class AppSyncOutput < GenericOutput
+  def handle(caption)
+    Faraday.post(
+      ENV.fetch('AMPLIFY_ENDPOINT'),
+      JSON.generate({
+        "channel" => "default/test",
+        "events" => [
+          JSON.generate(caption.to_h)
+        ]
+      }), {
+        "Content-Type" => "application/json",
+        "X-Api-Key" => ENV.fetch('AMPLIFY_API_KEY'),
+      })
+  end
+end
+
 class Watchdog
   NO_AUTO_RESTART_HOURS = ((0..9).to_a + (21..23).to_a).map { (_1 - 9).then { |jst|  jst < 0 ? 24+jst : jst } }
 
@@ -185,7 +203,7 @@ watchdog.start()
 input = StdinInput.new
 engine = TranscribeEngine.new
 translator = TranslateEngine.new
-output = StderrOutput.new
+output = AppSyncOutput.new
 
 input.on_data do |chunk|
   p now: Time.now, on_audio: chunk.bytesize
