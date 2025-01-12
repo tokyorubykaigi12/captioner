@@ -1,5 +1,6 @@
 source "https://rubygems.org"
 
+gem 'anthropic'
 gem 'aws-sdk-bedrockruntime'
 gem 'aws-sdk-transcribestreamingservice'
 gem 'aws-sdk-translate'
