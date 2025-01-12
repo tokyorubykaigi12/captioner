@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # https://github.com/ruby-no-kai/signage-app/blob/main/caption/serve.rb
 
 require 'thread'
