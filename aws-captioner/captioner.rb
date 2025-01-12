@@ -6,7 +6,7 @@ require_relative './transcribe_engine'
 require_relative './refiner'
 require_relative './translator'
 
-CaptionData = Data.define(:result_id, :is_partial, :transcript, :transcript_refined, :translated_transcript)
+CaptionData = Data.define(:result_id, :is_partial, :transcript, :transcript_original, :translation)
 
 watchdog = Watchdog.new(enabled: ARGV.delete('--watchdog'))
 watchdog.start()

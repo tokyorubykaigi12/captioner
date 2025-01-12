@@ -8,7 +8,8 @@ interface Message {
   result_id: string;
   is_partial: boolean;
   transcript: string;
-  translated_transcript: string;
+  transcript_original: string;
+  translation: string;
 }
 
 function App() {
@@ -69,7 +70,7 @@ function App() {
       <hr />
       <p className="messages">
         {messages.map((message) => (
-          <span key={message.result_id}>{message.translated_transcript}</span>
+          <span key={message.result_id}>{message.translation}</span>
         ))}
       </p>
     </>
