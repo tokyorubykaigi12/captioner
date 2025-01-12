@@ -14,7 +14,7 @@ watchdog.start()
 input = StdinInput.new
 engine = TranscribeEngine.new
 translator = TranslateEngine.new
-refiner = Refiner.new(backend: :bedrock)
+refiner = Refiner.new(backend: :anthropic)
 output = AppSyncOutput.new(debug: true)
 
 # Called when 256KB of input (1 second when -ar 16000) is received
@@ -32,9 +32,7 @@ engine.on_transcript_event do |event|
     transcript = result.alternatives[0]&.transcript
 
     if transcript
-      if !result.is_partial
-        refined = refiner.refine(transcript)
-      end
+      refined = refiner.refine(transcript, result.is_partial)
 
       caption = CaptionData.new(
         result_id: result.result_id,
