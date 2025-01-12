@@ -3,6 +3,7 @@ require 'aws-sdk-bedrockruntime'
 
 class Refiner
   def initialize(backend: :anthropic)
+    @cache = MiniCache.new
     @backend = backend
 
     case @backend
@@ -18,13 +19,24 @@ class Refiner
     end
   end
 
-  def refine(transcript)
-    case @backend
-    in :anthropic
-      refine_anthropic(transcript)
-    in :bedrock
-      refine_bedrock(transcript)
-    end
+  def refine(transcript, is_partial)
+    # 句点（「。」）を境界として分割し、is_partial であっても「。」の左側は refine する
+    sentences = is_partial ? transcript.split("。")[0..-2] : transcript.split("。")
+    sentences.each {|s| s << "。" }
+
+    refined_sentences =
+      sentences.map do |sentence|
+        # すでに refine ずみの文であればキャッシュからもってくる
+        @cache.cache(sentence) do
+          case @backend
+          in :anthropic
+            refine_anthropic(transcript)
+          in :bedrock
+            refine_bedrock(transcript)
+          end
+        end
+      end
+    refined_sentences.join
   end
 
   def refine_anthropic(transcript)
@@ -89,5 +101,25 @@ class Refiner
         __PROMPT__
       }
     ]
+  end
+end
+
+class MiniCache
+  MAX_SIZE = 1000
+
+  def initialize
+    @storage = {}
+  end
+
+  def cache(key, &block)
+    if val = @storage[key]
+      return val
+    else
+      # Remove oldest entry if we're at capacity
+      if @storage.size >= MAX_SIZE
+        @storage.shift # remove oldest entry
+      end
+      @storage[key] = block.call
+    end
   end
 end
