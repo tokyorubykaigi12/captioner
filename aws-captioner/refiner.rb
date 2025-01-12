@@ -20,6 +20,10 @@ class Refiner
   end
 
   def refine(transcript, is_partial)
+    if is_partial && transcript.count("。") == 0
+      return transcript
+    end
+
     # 句点（「。」）を境界として分割し、is_partial であっても「。」の左側は refine する
     sentences = is_partial ? transcript.split("。")[0..-2] : transcript.split("。")
     sentences.each {|s| s << "。" }
