@@ -1,5 +1,7 @@
 # https://github.com/ruby-no-kai/signage-app/blob/main/caption/serve.rb
 
+require 'thread'
+
 require_relative './io'
 require_relative './watchdog'
 require_relative './transcribe_engine'
@@ -23,27 +25,31 @@ input.on_data do |chunk|
   engine.feed(chunk)
 end
 
+lock = Mutex.new
+
 # Called when transcription is available
 engine.on_transcript_event do |event|
-  # Notify the watchdog
-  watchdog&.alive!
+  lock.synchronize do
+    # Notify the watchdog
+    watchdog&.alive!
 
-  event.transcript.results.each do |result|
-    transcript = result.alternatives[0]&.transcript
+    event.transcript.results.each do |result|
+      transcript = result.alternatives[0]&.transcript
 
-    if transcript
-      refined = refiner.refine(transcript)
-      translated = translator.translate(refined)
+      if transcript
+        refined = refiner.refine(transcript)
+        translated = translator.translate(refined)
 
-      caption = CaptionData.new(
-        result_id: result.result_id,
-        is_partial: result.is_partial,
-        transcript: refined,
-        transcript_original: transcript,
-        translation: translated,
-      )
+        caption = CaptionData.new(
+          result_id: result.result_id,
+          is_partial: result.is_partial,
+          transcript: refined,
+          transcript_original: transcript,
+          translation: translated,
+        )
 
-      output.feed(caption)
+        output.feed(caption)
+      end
     end
   end
 end
