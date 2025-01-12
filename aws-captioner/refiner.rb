@@ -22,6 +22,7 @@ class Refiner
   def refine(transcript)
     # 句点（「。」）を境界として分割し、is_partial であっても「。」の左側は refine する
     sentences = transcript.scan(/[^。]+。/)
+    remainder = transcript.match(/。([^。]+)$/)&.[](1) || "" # refine 対象ではない末尾部分
     if sentences.length == 0
       return transcript
     end
@@ -32,13 +33,13 @@ class Refiner
         @cache.cache(sentence) do
           case @backend
           in :anthropic
-            refine_anthropic(transcript)
+            refine_anthropic(sentence)
           in :bedrock
-            refine_bedrock(transcript)
+            refine_bedrock(sentence)
           end
         end
       end
-    refined_sentences.join
+    refined_sentences.join + remainder
   end
 
   def refine_anthropic(transcript)
