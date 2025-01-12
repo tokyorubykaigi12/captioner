@@ -4,3 +4,6 @@ gem 'aws-sdk-transcribestreamingservice'
 gem 'aws-sdk-translate'
 gem 'faraday'
 gem 'http-2'
+
+# Bundled gems that we don't directly depend on
+gem 'base64'
