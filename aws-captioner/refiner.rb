@@ -46,8 +46,10 @@ class Refiner
     response = @anthropic.messages(
       parameters: {
         model: 'claude-3-5-sonnet-20240620',
+        system: 'You are a professional technical interpreter.',
         messages: messages(transcript),
-        max_tokens: 1000,
+        max_tokens: 250,
+        temperature: 0,
       }
     )
 
@@ -56,6 +58,7 @@ class Refiner
 
   def refine_bedrock(transcript)
     begin
+      # TODO: Configure temperature etc
       invocation = @bedrock.invoke_model(
         model_id: 'anthropic.claude-3-5-sonnet-20240620-v1:0',
         content_type: 'application/json',
@@ -82,19 +85,32 @@ class Refiner
       {
         role: "user",
         content: <<~__PROMPT__
-          This is a Japanese transcripion of a conference talk about Ruby.
-          Make the transcription more readable by following these instructions:
+        You are a professional technical interpreter specializing in refining Japanese transcriptions of technical conferences.
+        Your task is to improve the readability of a Japanese transcription of a conference talk about Ruby.
 
-          - Remove filler words such as "あー", "えっと", "まあ".
-          - Try to rewrite terms related to Ruby from their Katakana form to their proper form.
-            - "ルビー" to "Ruby"
-            - "レールズ" to "Rails"
-          - Don't do other changes, and preserve the original transcription as much as possible.
+        Here is the original transcription you need to refine:
 
-          Return the refined transcription only. No other text is needed.
+        <original_transcription>
+        #{transcript}
+        </original_transcription>
 
-          TRANSCRIPTION:
-          #{transcript}
+        This is part of a Japanese transcripion of a conference talk about Ruby.
+        Make the original transcription more readable by following these instructions:
+
+        <instructions>
+        - Remove filler words such as "あー", "えっと", "まあ".
+        - Try to rewrite terms related to Ruby from their Katakana form to their proper form.
+          - "ルビー" to "Ruby"
+          - "レールズ" to "Rails"
+        - Don't do other changes, and preserve the original transcription as much as possible.
+
+        Return the refined transcription only, and nothing else.
+        </instructions>
+
+        Output Format:
+        - Provide ONLY the refined transcription.
+        - Do NOT include any introductory text such as "Here is the improved transcription:".
+        - The output should start directly with the refined Japanese text.
         __PROMPT__
       }
     ]
