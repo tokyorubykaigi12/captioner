@@ -1,35 +1,79 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import { Amplify } from "aws-amplify";
+import { events } from "aws-amplify/data";
+
+import "./App.css";
+
+interface Message {
+  result_id: string;
+  is_partial: boolean;
+  transcript: string;
+  translated_transcript: string;
+}
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  useEffect(() => {
+    Amplify.configure({
+      API: {
+        Events: {
+          endpoint: import.meta.env.VITE_AMPLIFY_ENDPOINT,
+          region: import.meta.env.VITE_AMPLIFY_REGION,
+          defaultAuthMode: "apiKey",
+          apiKey: import.meta.env.VITE_AMPLIFY_API_KEY,
+        },
+      },
+    });
+
+    const connectToAmplify = async () => {
+      try {
+        const channel = await events.connect("/default/test");
+        channel.subscribe({
+          next: (data) => {
+            console.log("Received data:", data);
+            setMessages((prevMessages) => {
+              const lastMessage = prevMessages[prevMessages.length - 1];
+              if (lastMessage?.result_id === data.event.result_id) {
+                // replace the last message
+                return [...prevMessages.slice(0, -1), { ...data.event }];
+              } else {
+                // simply append
+                return [...prevMessages, { ...data.event }];
+              }
+            });
+          },
+          error: (error) => {
+            console.error("Subscription error:", error);
+          },
+        });
+      } catch (error) {
+        console.error("Connection error:", error);
+      }
+    };
+
+    connectToAmplify();
+
+    return () => {
+      // TODO: call events.unsubscribe()
+    };
+  }, []);
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
+      <p className="messages">
+        {messages.map((message) => (
+          <span key={message.result_id}>{message.transcript}</span>
+        ))}
+      </p>
+      <hr />
+      <p className="messages">
+        {messages.map((message) => (
+          <span key={message.result_id}>{message.translated_transcript}</span>
+        ))}
       </p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
