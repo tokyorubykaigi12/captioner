@@ -1,9 +1,9 @@
-class TranslateEngine
+class Translator
   def initialize
     @client = Aws::Translate::Client.new(region: 'ap-northeast-1')
   end
 
-  def translate(text:)
+  def translate(text)
     @client.translate_text(
       text: text,
       source_language_code: 'ja',

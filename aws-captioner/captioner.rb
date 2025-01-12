@@ -4,7 +4,7 @@ require_relative './io'
 require_relative './watchdog'
 require_relative './transcribe_engine'
 require_relative './refiner'
-require_relative './translate_engine'
+require_relative './translator'
 
 CaptionData = Data.define(:result_id, :is_partial, :transcript, :transcript_refined, :translated_transcript)
 
@@ -13,8 +13,8 @@ watchdog.start()
 
 input = StdinInput.new
 engine = TranscribeEngine.new
-translator = TranslateEngine.new
 refiner = Refiner.new(backend: :anthropic)
+translator = Translator.new
 output = AppSyncOutput.new(debug: true)
 
 # Called when 256KB of input (1 second when -ar 16000) is received
@@ -33,13 +33,14 @@ engine.on_transcript_event do |event|
 
     if transcript
       refined = refiner.refine(transcript, result.is_partial)
+      translated = translator.translate(refined)
 
       caption = CaptionData.new(
         result_id: result.result_id,
         is_partial: result.is_partial,
-        transcript: transcript,
-        transcript_refined: refined,
-        translated_transcript: translator&.translate(text: transcript) # 富豪的に呼んでいるが、is_partial: false のときだけでもいいかも？
+        transcript: refined,
+        transcript_original: transcript,
+        translation: translated,
       )
 
       output.feed(caption)
