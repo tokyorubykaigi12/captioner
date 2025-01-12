@@ -22,11 +22,22 @@ input.on_data do |chunk|
 end
 
 # Called when transcription is available
-engine.on_transcript_event do |e|
+engine.on_transcript_event do |event|
   # Notify the watchdog
   watchdog&.alive!
 
-  output.feed(e, translator)
+  event.transcript.results.each do |result|
+    transcript = result.alternatives[0]&.transcript
+
+    caption = CaptionData.new(
+      result_id: result.result_id,
+      is_partial: result.is_partial,
+      transcript: transcript,
+      translated_transcript: translator&.translate(text: transcript) # 富豪的に呼んでいるが、is_partial: false のときだけでもいいかも？
+    )
+
+    output.feed(caption)
+  end
 end
 
 begin

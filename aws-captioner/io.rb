@@ -30,20 +30,9 @@ class GenericOutput
     @data = {}
   end
 
-  def feed(event, translator = nil)
+  def feed(caption)
     @data_lock.synchronize do
-      event.transcript.results.each do |result|
-        transcript = result.alternatives[0]&.transcript
-
-        caption = CaptionData.new(
-          result_id: result.result_id,
-          is_partial: result.is_partial,
-          transcript: transcript,
-          translated_transcript: translator&.translate(text: transcript) # 富豪的に呼んでいるが、is_partial: false のときだけでもいいかも？
-        )
-
-        @data[result.result_id] = caption if caption.transcript
-      end
+      @data[caption.result_id] = caption if caption.transcript
     end
   end
 
