@@ -14,7 +14,7 @@ watchdog.start()
 input = StdinInput.new
 engine = TranscribeEngine.new
 translator = TranslateEngine.new
-refiner = Refiner.new
+refiner = Refiner.new(backend: :bedrock)
 output = AppSyncOutput.new(debug: true)
 
 # Called when 256KB of input (1 second when -ar 16000) is received
