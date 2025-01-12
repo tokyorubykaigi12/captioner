@@ -19,14 +19,12 @@ class Refiner
     end
   end
 
-  def refine(transcript, is_partial)
-    if is_partial && transcript.count("。") == 0
+  def refine(transcript)
+    # 句点（「。」）を境界として分割し、is_partial であっても「。」の左側は refine する
+    sentences = transcript.scan(/[^。]+。/)
+    if sentences.length == 0
       return transcript
     end
-
-    # 句点（「。」）を境界として分割し、is_partial であっても「。」の左側は refine する
-    sentences = is_partial ? transcript.split("。")[0..-2] : transcript.split("。")
-    sentences.each {|s| s << "。" }
 
     refined_sentences =
       sentences.map do |sentence|
@@ -44,11 +42,6 @@ class Refiner
   end
 
   def refine_anthropic(transcript)
-    # Skip if the transcript is too short. It won't produce good results anyway.
-    if transcript.length < 20
-      return nil
-    end
-
     response = @anthropic.messages(
       parameters: {
         model: 'claude-3-5-sonnet-20240620',
@@ -61,11 +54,6 @@ class Refiner
   end
 
   def refine_bedrock(transcript)
-    # Skip if the transcription is too short. It won't produce good results anyway.
-    if transcript.length < 20
-      return nil
-    end
-
     begin
       invocation = @bedrock.invoke_model(
         model_id: 'anthropic.claude-3-5-sonnet-20240620-v1:0',

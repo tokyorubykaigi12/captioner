@@ -32,7 +32,7 @@ engine.on_transcript_event do |event|
     transcript = result.alternatives[0]&.transcript
 
     if transcript
-      refined = refiner.refine(transcript, result.is_partial)
+      refined = refiner.refine(transcript)
       translated = translator.translate(refined)
 
       caption = CaptionData.new(
