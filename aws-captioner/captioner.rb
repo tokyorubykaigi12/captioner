@@ -15,13 +15,17 @@ engine = TranscribeEngine.new
 translator = TranslateEngine.new
 output = AppSyncOutput.new
 
+# Called when 256KB of input (1 second when -ar 16000) is received
 input.on_data do |chunk|
-  p now: Time.now, on_audio: chunk.bytesize
+  # Pass audio chunk to TranscribeEngine
   engine.feed(chunk)
 end
 
+# Called when transcription is available
 engine.on_transcript_event do |e|
+  # Notify the watchdog
   watchdog&.alive!
+
   output.feed(e, translator)
 end
 
