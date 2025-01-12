@@ -81,14 +81,18 @@ class Refiner
       {
         role: "user",
         content: <<~__PROMPT__
-          これはRubyに関するカンファレンスの発表の書き起こしです。以下のルールにしたがって、書き起こしを読みやすくしてください。
+          This is a Japanese transcripion of a conference talk about Ruby.
+          Make the transcription more readable by following these instructions:
 
-          - 「えっと」や「まー」などのフィラーを取り除いてください
-          - Ruby に関連しそうな用語は正しい表記にしてください（「ルビー」→  Ruby など）
-          - 以上に述べた変更以外は行わず、なるべく元の書き起こしをそのまま出力する。
+          - Remove filler words such as "あー", "えっと", "まあ".
+          - Try to rewrite terms related to Ruby from their Katakana form to their proper form.
+            - "ルビー" to "Ruby"
+            - "レールズ" to "Rails"
+          - Don't do other changes, and preserve the original transcription as much as possible.
 
-          読みやすくなった書き起こしのみを出力すること。出力の説明は不要。
+          Return the refined transcription only. No other text is needed.
 
+          TRANSCRIPTION:
           #{transcript}
         __PROMPT__
       }
