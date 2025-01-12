@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class Watchdog
   NO_AUTO_RESTART_HOURS = ((0..9).to_a + (21..23).to_a).map { (_1 - 9).then { |jst|  jst < 0 ? 24+jst : jst } }
 

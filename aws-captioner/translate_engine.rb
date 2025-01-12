@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class TranslateEngine
   def initialize
     @client = Aws::Translate::Client.new(region: 'ap-northeast-1')
