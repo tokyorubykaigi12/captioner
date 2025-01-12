@@ -71,6 +71,7 @@ class AppSyncOutput < GenericOutput
   def handle(caption)
     if @debug
       $stderr.puts "Ja (orig): #{caption.transcript}"
+      $stderr.puts "Ja (refn): #{caption.transcript_refined}"
       $stderr.puts "En (tnsl): #{caption.translated_transcript}"
       $stderr.puts ""
     end
