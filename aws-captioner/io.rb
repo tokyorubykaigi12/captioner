@@ -63,7 +63,18 @@ class StderrOutput < GenericOutput
 end
 
 class AppSyncOutput < GenericOutput
+  def initialize(debug: false)
+    super()
+    @debug = debug
+  end
+
   def handle(caption)
+    if @debug
+      $stderr.puts "Ja (orig): #{caption.transcript}"
+      $stderr.puts "En (tnsl): #{caption.translated_transcript}"
+      $stderr.puts ""
+    end
+
     Faraday.post(
       ENV.fetch('AMPLIFY_ENDPOINT'),
       JSON.generate({

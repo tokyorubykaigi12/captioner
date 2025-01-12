@@ -13,7 +13,7 @@ watchdog.start()
 input = StdinInput.new
 engine = TranscribeEngine.new
 translator = TranslateEngine.new
-output = AppSyncOutput.new
+output = AppSyncOutput.new(debug: true)
 
 # Called when 256KB of input (1 second when -ar 16000) is received
 input.on_data do |chunk|
