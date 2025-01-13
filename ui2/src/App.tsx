@@ -90,12 +90,15 @@ function App() {
       <hr />
       <p className="messages">
         {messages.map((message) => (
-          <span
-            key={message.result_id}
-            className={message.is_partial ? "partial" : ""}
-          >
-            {message.translation}
-          </span>
+          <>
+            <span
+              key={message.result_id}
+              className={message.is_partial ? "partial" : ""}
+            >
+              {message.translation}
+            </span>{" "}
+            <br />
+          </>
         ))}
         <div
           ref={translationDivScroller}
