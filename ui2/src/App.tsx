@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { Amplify } from "aws-amplify";
-import { events } from "aws-amplify/data";
+import { events, EventsChannel } from "aws-amplify/data";
 
 import "./App.css";
 
@@ -14,27 +14,23 @@ interface Message {
 
 function App() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [channel, setChannel] = useState<EventsChannel | null>(null);
   const transcriptDivScroller = useRef<HTMLDivElement>(null);
   const translationDivScroller = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    Amplify.configure({
-      API: {
-        Events: {
-          endpoint: import.meta.env.VITE_AMPLIFY_ENDPOINT,
-          region: import.meta.env.VITE_AMPLIFY_REGION,
-          defaultAuthMode: "apiKey",
-          apiKey: import.meta.env.VITE_AMPLIFY_API_KEY,
-        },
-      },
-    });
+    let isAborted = false;
 
     const connectToAmplify = async () => {
       try {
-        const channel = await events.connect("/default/test");
-        channel.subscribe({
+        const c = await events.connect("/default/test");
+        if (isAborted === true) {
+          c.close();
+          return;
+        }
+        c.subscribe({
           next: (data) => {
-            console.log("Received data:", data);
+            console.log(data.event);
             setMessages((prevMessages) => {
               const lastMessage = prevMessages[prevMessages.length - 1];
               if (lastMessage?.result_id === data.event.result_id) {
@@ -57,6 +53,8 @@ function App() {
             console.error("Subscription error:", error);
           },
         });
+        setChannel(c);
+        console.log("subscribed!");
       } catch (error) {
         console.error("Connection error:", error);
       }
@@ -65,7 +63,11 @@ function App() {
     connectToAmplify();
 
     return () => {
-      // TODO: call events.unsubscribe()
+      isAborted = true;
+      if (channel) {
+        channel?.close();
+        console.log("unsubscribed!");
+      }
     };
   }, []);
 
