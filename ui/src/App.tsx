@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from "react";
-import { Amplify } from "aws-amplify";
 import { events, EventsChannel } from "aws-amplify/data";
 
 import "./App.css";
