@@ -79,7 +79,7 @@ class AppSyncOutput < GenericOutput
     Faraday.post(
       ENV.fetch('AMPLIFY_ENDPOINT'),
       JSON.generate({
-        "channel" => "default/test",
+        "channel" => "default/#{ENV.fetch("AMPLIFY_CHANNEL")}",
         "events" => [
           JSON.generate(caption.to_h)
         ]

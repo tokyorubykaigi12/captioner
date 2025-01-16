@@ -22,7 +22,9 @@ function App() {
 
     const connectToAmplify = async () => {
       try {
-        const c = await events.connect("/default/test");
+        const urlParams = new URLSearchParams(window.location.search);
+        const channelParam = urlParams.get("channel") || "test";
+        const c = await events.connect(`/default/${channelParam}`);
         if (isAborted === true) {
           c.close();
           return;
