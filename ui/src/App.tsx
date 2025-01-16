@@ -31,6 +31,13 @@ function App() {
         c.subscribe({
           next: (data) => {
             console.log(data.event);
+
+            // Check for commands
+            if (data.event.command === "jibaku") {
+              window.location.reload();
+              return;
+            }
+
             setMessages((prevMessages) => {
               const lastMessage = prevMessages[prevMessages.length - 1];
               if (lastMessage?.result_id === data.event.result_id) {
