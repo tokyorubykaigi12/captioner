@@ -81,21 +81,6 @@ function App() {
 
   return (
     <>
-      <div className="messages">
-        {messages.map((message) => (
-          <span
-            key={message.result_id}
-            className={message.is_partial ? "partial" : ""}
-          >
-            {message.transcript}
-          </span>
-        ))}
-        <div
-          ref={transcriptDivScroller}
-          style={{ float: "left", clear: "both" }}
-        />
-      </div>
-      <hr />
       <p className="messages">
         {messages.map((message) => (
           <>
@@ -113,6 +98,32 @@ function App() {
           style={{ float: "left", clear: "both" }}
         />
       </p>
+      <hr />
+      <div className="messages">
+        {messages.map((message) => (
+          <span
+            key={message.result_id}
+            className={message.is_partial ? "partial" : ""}
+          >
+            {message.transcript
+              .replaceAll("ルビ", "Ruby")
+              .replaceAll("性的", "静的")
+              .replaceAll("レズ", "Rails")
+              .replaceAll("。", "。\n")
+              .split("\n")
+              .map((part) => (
+                <>
+                  {part}
+                  <br />
+                </>
+              ))}
+          </span>
+        ))}
+        <div
+          ref={transcriptDivScroller}
+          style={{ float: "left", clear: "both" }}
+        />
+      </div>
     </>
   );
 }
